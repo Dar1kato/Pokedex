@@ -4,7 +4,7 @@ export const PokemonCard = ({ pokemon }) => {
     const image = pokemon.sprites.other['official-artwork'].front_default
     return (
         <>
-            <article className="tarketa">
+            <article className="tarjeta">
                 <img src={image} alt={pokemon.name} width="200" />
                 <h2>#{pokemon.id} {pokemon.name}</h2>
                 <ul className="tipos">
