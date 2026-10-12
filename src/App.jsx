@@ -64,25 +64,35 @@ function App() {
   }
 
   return (
-    <>
+    <div className='pokedex-page'>
+      <div className='pokedex-shell'>
+        <h1>Pokedex</h1>
+        <main className='pokemon-results'>
+          {/* Estatus de error y carga */}
+          {loading && <p className='status-message'>Cargando...</p>}
+          {error && <p className='status-message error'>{error}</p>}
+
+          {/* Generación de las tarjetas */}
+          {pokemon && !loading && !error && (
+            <div className='pokemon-grid'>
+              {pokemon.map((e) => (
+                <PokemonCard key={e.id} pokemon={e} select={select}/>
+              ))}
+            </div>
+          )}
+
+          {/* Navegación */}
+          <nav className='pagination-controls' aria-label='Paginación Pokémon'>
+            {/* Los botones aumentan el offset de la API */}
+            <button className='pagination-button' disabled={index <= 0} onClick={() => setIndex(index => index - 50 <= 0 ? 0 : index = 1)}>Previous</button>
+            <button className='pagination-button' onClick={() => setIndex(index => index + 50)}>Next</button>
+          </nav>
+        </main>
+      </div>
+
+      {/* Listado del qeuipo actual */}
       <PokemonTeam team={team} remove={remove}/>
-
-      <h1>Pokedex</h1>
-      <br />
-      {loading && <p>Cargando...</p>}
-      {error && <p className='error'>{error}</p>}
-
-      {/* Generación procedural de las tarjetas */}
-      {pokemon && !loading && !error && pokemon.map((e) => (
-        <PokemonCard key={e.id} pokemon={e} select={select}/>
-      ))}
-
-      <nav className='pagination-controls' aria-label='Paginación Pokémon'>
-        {/* Los botones aumentan el offset de la API */}
-        <button className='pagination-button' disabled={index <= 0} onClick={() => setIndex(index => index - 50 <= 0 ? 0 : index = 1)}>Previous</button>
-        <button className='pagination-button' onClick={() => setIndex(index => index + 50)}>Next</button>
-      </nav>
-    </>
+    </div>
   )
 }
 
