@@ -1,10 +1,10 @@
 import React from "react";
 
-export const PokemonCard = ({ pokemon }) => {
+export const PokemonCard = ({ pokemon, select }) => {
     const image = pokemon.sprites.other['official-artwork'].front_default
     return (
         <>
-            <article className="tarjeta">
+            <article onClick={() => select(pokemon)} className="tarjeta">
                 <img src={image} alt={pokemon.name} width="200" />
                 <h2>#{pokemon.id} {pokemon.name}</h2>
                 <ul className="tipos">

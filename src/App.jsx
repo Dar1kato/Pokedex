@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import { PokemonCard } from './components/PokemonCard'
+import { PokemonTeam } from './components/PokemonTeam'
 
 const API = "https://pokeapi.co/api/v2/"
 
@@ -8,7 +9,8 @@ function App() {
   const [pokemon, setPokemon] = useState([])      // Listado de Pokemon obtenidos por el fetch
   const [loading, setLoading] = useState(true)    // Estado de carga de la página
   const [error, setError] = useState(null)        // Estado de error de la página
-  const [index, setIndex] =useState(0)            // Numero del offset para el fetch
+  const [index, setIndex] = useState(0)           // Numero del offset para el fetch
+  const [team, setTeam] = useState([])            // Equipo
 
   useEffect(() => {
     async function load() {
@@ -49,8 +51,22 @@ function App() {
     load()
   }, [index]) // El index es el offset en el fetch del API
 
+  // Funcion para agregar Pokemon al equipo
+  const select = (pokemon) => {
+    if (team.length == 6 || team.includes(pokemon)) {
+      return;
+    }
+    setTeam([pokemon, ...team]);
+  }
+
+  const remove = (pokemon) => {
+    setTeam(team.filter((e) => e !== pokemon))
+  }
+
   return (
     <>
+      <PokemonTeam team={team} remove={remove}/>
+
       <h1>Pokedex</h1>
       <br />
       {loading && <p>Cargando...</p>}
@@ -58,16 +74,16 @@ function App() {
 
       {/* Generación procedural de las tarjetas */}
       {pokemon && !loading && !error && pokemon.map((e) => (
-        <PokemonCard key={e.id} pokemon={e} />
+        <PokemonCard key={e.id} pokemon={e} select={select}/>
       ))}
 
       <nav className='pagination-controls' aria-label='Paginación Pokémon'>
         {/* Los botones aumentan el offset de la API */}
-        <button className='pagination-button' disabled={index <= 0} onClick={() => setIndex(index => index - 500 <= 0 ? 0 : index = 1)}>Previous</button>
+        <button className='pagination-button' disabled={index <= 0} onClick={() => setIndex(index => index - 50 <= 0 ? 0 : index = 1)}>Previous</button>
         <button className='pagination-button' onClick={() => setIndex(index => index + 50)}>Next</button>
       </nav>
     </>
   )
 }
 
-export default App
+export default App 
