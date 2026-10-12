@@ -63,7 +63,7 @@ function App() {
 
       <nav className='pagination-controls' aria-label='Paginación Pokémon'>
         {/* Los botones aumentan el offset de la API */}
-        <button className='pagination-button' onClick={() => setIndex(index => index - 500 <= 0 ? 0 : index = 1)}>Previous</button>
+        <button className='pagination-button' disabled={index <= 0} onClick={() => setIndex(index => index - 500 <= 0 ? 0 : index = 1)}>Previous</button>
         <button className='pagination-button' onClick={() => setIndex(index => index + 50)}>Next</button>
       </nav>
     </>
