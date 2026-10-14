@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { doc, setDoc, deleteDoc, getDocs, collection } from 'firebase/firestore'
+import { db } from './firebase'
 import './App.css'
 import { PokemonCard } from './components/PokemonCard'
 import { PokemonTeam } from './components/PokemonTeam'
@@ -12,6 +14,7 @@ function App() {
   const [index, setIndex] = useState(0)           // Numero del offset para el fetch
   const [team, setTeam] = useState([])            // Equipo
 
+  // Llamada a la API
   useEffect(() => {
     async function load() {
       // Banderas de protección
@@ -51,16 +54,43 @@ function App() {
     load()
   }, [index]) // El index es el offset en el fetch del API
 
+
+  // Query del equipo guardado
+  useEffect(() => {
+    getDocs(collection(db, 'equipo'))
+      .then((snap) => 
+        setTeam(snap.docs.map((data) => data.data().pokemon).filter(Boolean))
+      )
+      .catch((e) => setError(e.message))
+  }, [])
+
+
   // Funcion para agregar Pokemon al equipo
-  const select = (pokemon) => {
-    if (team.length == 6 || team.includes(pokemon)) {
-      return;
+  async function select(pokemon) {
+    if (team.length == 6) return
+    if (team.some((e) => e.id === pokemon.id)) return
+    
+    setTeam([...team, pokemon]);
+
+    try {
+      await setDoc(doc(db, 'equipo', String(pokemon.id)), {
+        pokemon: pokemon
+      })
+    } catch (err) {
+      console.log(err)
     }
-    setTeam([pokemon, ...team]);
   }
 
-  const remove = (pokemon) => {
+  const remove = async (pokemon) => {
     setTeam(team.filter((e) => e !== pokemon))
+
+    try {
+      await deleteDoc(doc(db, 'equipo', String(pokemon.id)))
+      console.log("Pokemon eliminado correctamente")
+
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   return (

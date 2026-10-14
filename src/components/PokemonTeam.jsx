@@ -13,7 +13,7 @@ export const PokemonTeam = ({ team, remove }) => {
                 <ul className="pokemon-team-list">
                     {team.map((pokemon) => (
                         <li className="pokemon-team-item" key={pokemon.id}>
-                            <img src={pokemon.sprites.other['official-artwork'].front_default} className="pokemon-team-image"/>
+                            <img src={pokemon.sprites?.other?.['official-artwork']?.front_default ?? pokemon.sprites?.front_default} alt={pokemon.name} className="pokemon-team-image"/>
                             <span className="pokemon-team-name">
                                 <span>#{pokemon.id}</span>
                                 <strong>{pokemon.name}</strong>
