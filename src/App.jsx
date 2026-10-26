@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react'
 import { doc, setDoc, deleteDoc, getDocs, collection } from 'firebase/firestore'
 import { db } from './firebase'
+import { 
+        selectPokemon,
+        removePokemon,
+        writeTeam,
+        removeTeam,
+        loadPokemon,
+        loadTeam
+      } 
+from './logic/pokemon'
 import './App.css'
 import { PokemonCard } from './components/PokemonCard'
 import { PokemonTeam } from './components/PokemonTeam'
-
-const API = "https://pokeapi.co/api/v2/"
 
 function App() {
   const [pokemon, setPokemon] = useState([])      // Listado de Pokemon obtenidos por el fetch
@@ -21,76 +28,46 @@ function App() {
       setLoading(true)
       setError(null)
 
-      try {
-        // Fetch de 50 pokemon con {index} como offset
-        const res = await fetch(`${API}pokemon/?limit=50&offset=${index}`)
+      // Recuperación de la información
+      const { query, error } = await loadPokemon(index)
 
-        // Detección de errores en el fetch general
-        if (!res.ok) throw new Error(`Error en el fetch ("${res.status}")`)
-        
-        // Codigo generado con IA para el manejo de las URLs obtenidas por el fetch general de la API
-        const { results } = await res.json()
-        const details = await Promise.all(
-          results.map(async ({ url }) => {
-            const response = await fetch(url)
-            if (!response.ok) throw new Error(`Error en el fetch ("${response.status}")`)
-            return response.json()
-          })
-        )
-
-        // Actualizamos la lista de Pokemon
-        setPokemon(details)
-
-      // Manejo de errores
-      } catch (err) {
-        setError(err.message)
-
-      // Termino de la ejecución, finaliza el loading state
-      } finally {
-        setLoading(false)
-      }
+      setPokemon(query)
+      setError(error)
+      setLoading(false)
     }
 
     load()
-  }, [index]) // El index es el offset en el fetch del API
-
+  }, [index])
 
   // Query del equipo guardado
   useEffect(() => {
-    getDocs(collection(db, 'equipo'))
-      .then((snap) => 
-        setTeam(snap.docs.map((data) => data.data().pokemon).filter(Boolean))
-      )
-      .catch((e) => setError(e.message))
+    async function load() {
+      const { team: currentTeam, error: currentError } = await loadTeam()
+
+      setTeam(currentTeam)
+      if (currentError) setError(currentError)
+    }
+
+    load()
   }, [])
 
 
   // Funcion para agregar Pokemon al equipo
-  async function select(pokemon) {
-    if (team.length == 6) return
-    if (team.some((e) => e.id === pokemon.id)) return
+  function handleSelect(pokemon) {
+    const selection = selectPokemon(pokemon, team)
     
-    setTeam([...team, pokemon]);
+    if (!selection) return 
 
-    try {
-      await setDoc(doc(db, 'equipo', String(pokemon.id)), {
-        pokemon: pokemon
-      })
-    } catch (err) {
-      console.log(err)
-    }
+    setTeam([...team, selection])
+
+    writeTeam(pokemon)
   }
 
-  const remove = async (pokemon) => {
-    setTeam(team.filter((e) => e !== pokemon))
+  // Función para eliminar Pokemon al equipo
+  function handleRemove(pokemon) {
+    setTeam(removePokemon(team, pokemon))
 
-    try {
-      await deleteDoc(doc(db, 'equipo', String(pokemon.id)))
-      console.log("Pokemon eliminado correctamente")
-
-    } catch (err) {
-      console.log(err)
-    }
+    removeTeam(pokemon)
   }
 
   return (
@@ -106,7 +83,7 @@ function App() {
           {pokemon && !loading && !error && (
             <div className='pokemon-grid'>
               {pokemon.map((e) => (
-                <PokemonCard key={e.id} pokemon={e} select={select}/>
+                <PokemonCard key={e.id} pokemon={e} select={handleSelect}/>
               ))}
             </div>
           )}
@@ -121,7 +98,7 @@ function App() {
       </div>
 
       {/* Listado del qeuipo actual */}
-      <PokemonTeam team={team} remove={remove}/>
+      <PokemonTeam team={team} remove={handleRemove}/>
     </div>
   )
 }
