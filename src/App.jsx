@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
-import { doc, setDoc, deleteDoc, getDocs, collection } from 'firebase/firestore'
-import { db } from './firebase'
 import { 
         selectPokemon,
         removePokemon,
-        writeTeam,
-        removeTeam,
         loadPokemon,
-        loadTeam
       } 
-from './logic/pokemon'
+  from './logic/pokemon'
+import { 
+        writeTeam,
+        removeTeam, 
+        loadTeam 
+      } 
+  from './logic/team'
 import './App.css'
 import { PokemonCard } from './components/PokemonCard'
 import { PokemonTeam } from './components/PokemonTeam'
@@ -33,6 +34,7 @@ function App() {
 
       setPokemon(query)
       setError(error)
+
       setLoading(false)
     }
 
