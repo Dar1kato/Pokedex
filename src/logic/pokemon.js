@@ -1,4 +1,4 @@
-const API = "https://pokeapi.co/api/v2/"
+const API = import.meta.env.VITE_POKEAPI_URL
 
 export function selectPokemon(pokemon, team) {
     if (team.length == 6) return
@@ -13,7 +13,7 @@ export function removePokemon(team, pokemon) {
 
 export async function loadPokemon(index) {
   try {
-    const res = await fetch(`${API}pokemon/?limit=50&offset=${index}`)
+    const res = await fetch(`${API}?limit=50&offset=${index}`)
     if (!res.ok) throw new Error(`Error en el fetch ("${res.status}")`)
 
     const { results } = await res.json()
