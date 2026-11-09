@@ -56,12 +56,16 @@ function App() {
 
   // Funcion para agregar Pokemon al equipo
   function handleSelect(pokemon) {
+    // Obtener la selección de Pokemon
     const selection = selectPokemon(pokemon, team)
     
+    // Prevención de selección nula
     if (!selection) return 
 
+    // Escritura del pokemon al equipo local
     setTeam([...team, selection])
 
+    // Escritura del pokemon a db
     writeTeam(pokemon)
   }
 
@@ -93,6 +97,7 @@ function App() {
           {/* Navegación */}
           <nav className='pagination-controls' aria-label='Paginación Pokémon'>
             {/* Los botones aumentan el offset de la API */}
+            <button className='pagination-button' disabled={index <= 0} onClick={() => setIndex(0)}>&lt;</button>
             <button className='pagination-button' disabled={index <= 0} onClick={() => setIndex(index => index - 50 <= 0 ? 0 : index = 1)}>Previous</button>
             <button className='pagination-button' onClick={() => setIndex(index => index + 50)}>Next</button>
           </nav>
