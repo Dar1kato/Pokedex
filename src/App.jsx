@@ -2,15 +2,18 @@ import { useState, useEffect } from 'react'
 import { 
         selectPokemon,
         removePokemon,
-        loadPokemon,
       } 
   from './logic/pokemon'
+import { 
+        loadPokemon
+      } 
+  from './data/pokemon'
 import { 
         writeTeam,
         removeTeam, 
         loadTeam 
       } 
-  from './logic/team'
+  from './data/team'
 import './App.css'
 import { PokemonCard } from './components/PokemonCard'
 import { PokemonTeam } from './components/PokemonTeam'
