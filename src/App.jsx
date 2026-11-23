@@ -18,7 +18,7 @@ import './App.css'
 import { PokemonCard } from './components/PokemonCard'
 import { PokemonTeam } from './components/PokemonTeam'
 
-function App() {
+function App({ usuario }) {
   const [pokemon, setPokemon] = useState([])      // Listado de Pokemon obtenidos por el fetch
   const [loading, setLoading] = useState(true)    // Estado de carga de la página
   const [error, setError] = useState(null)        // Estado de error de la página
@@ -46,37 +46,46 @@ function App() {
 
   // Query del equipo guardado
   useEffect(() => {
-    async function load() {
-      const { team: currentTeam, error: currentError } = await loadTeam()
+    let active = true
 
+    async function load() {
+      const { team: currentTeam, error: currentError } = await loadTeam(usuario.uid)
+
+      if (!active) return
       setTeam(currentTeam)
       if (currentError) setError(currentError)
     }
 
     load()
-  }, [])
+    return () => {
+      active = false
+    }
+  }, [usuario.uid])
 
-
-  // Funcion para agregar Pokemon al equipo
-  function handleSelect(pokemon) {
+  async function handleSelect(pokemon) {
     // Obtener la selección de Pokemon
     const selection = selectPokemon(pokemon, team)
-    
+
     // Prevención de selección nula
-    if (!selection) return 
+    if (!selection) return
 
-    // Escritura del pokemon al equipo local
-    setTeam([...team, selection])
-
-    // Escritura del pokemon a db
-    writeTeam(pokemon)
+    setError(null)
+    try {
+      await writeTeam(usuario.uid, selection)
+      setTeam(currentTeam => [...currentTeam, selection])
+    } catch (err) {
+      setError(`No se pudo guardar el equipo: ${err.message}`)
+    }
   }
 
-  // Función para eliminar Pokemon al equipo
-  function handleRemove(pokemon) {
-    setTeam(removePokemon(team, pokemon))
-
-    removeTeam(pokemon)
+  async function handleRemove(pokemon) {
+    setError(null)
+    try {
+      await removeTeam(usuario.uid, pokemon)
+      setTeam(currentTeam => removePokemon(currentTeam, pokemon))
+    } catch (err) {
+      setError(`No se pudo actualizar el equipo: ${err.message}`)
+    }
   }
 
   return (
